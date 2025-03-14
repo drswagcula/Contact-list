@@ -1,32 +1,35 @@
 import React, { useState, useEffect } from "react";
 import ContactList from "./components/ContactList";
 import SelectedContact from "./components/SelectedContact";
+import "./App.css";
 
 const API_BASE_URL = "https://fsa-jsonplaceholder-69b5c48f1259.herokuapp.com";
 
 export default function App() {
   const [selectedContactId, setSelectedContactId] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
+    async function fetchContacts() {
       try {
-        const response = await fetch(`${API_BASE_URL}/todos/1`);
+        const response = await fetch(`${API_BASE_URL}/users`);
+        console.log("Response:", response);
         if (!response.ok) {
-          throw new Error("Failed to fetch todo");
+          throw new Error(`Failed to fetch contacts. Status: ${response.status}`);
         }
-        const json = await response.json();
-        console.log("Todo: ", json);
+        const result = await response.json();
+        console.log("Result:", result);
+        setContacts(result);
       } catch (err) {
         setError(err);
-        console.error("Error fetching todo:", err);
+        console.error("Error fetching contacts:", err);
       } finally {
         setLoading(false);
       }
     }
-    fetchData();
+    fetchContacts();
   }, []);
 
   if (loading) return <div>Loading...</div>;
@@ -40,7 +43,10 @@ export default function App() {
           setSelectedContactId={setSelectedContactId}
         />
       ) : (
-        <ContactList setSelectedContactId={setSelectedContactId} />
+        <ContactList
+          contacts={contacts}
+          setSelectedContactId={setSelectedContactId}
+        />
       )}
     </>
   );
